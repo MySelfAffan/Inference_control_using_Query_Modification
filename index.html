@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Research Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary: #3a7bd5;
+            --primary-dark: #2c65b0;
+            --secondary: #00d2ff;
+            --text: #2d3748;
+            --text-light: #4a5568;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --success: #38a169;
+            --warning: #dd6b20;
+            --error: #e53e3e;
+            --researcher: #4c51bf;
+            --admin: #6b46c1;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                url('https://images.unsplash.com/photo-1581594549595-35f6edc7b762?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'), 
+                linear-gradient(to bottom, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0) 100%);
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-blend-mode: normal;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;       
+            bottom: 0;
+            background-image: inherit;
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* Intro Page */
+        .intro-page {
+            text-align: center;
+            color: white;
+            padding: 8rem 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .intro-page h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .intro-page p {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .login-btn {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background-color: white;
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .login-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            max-width: 900px;
+            margin: 5rem auto;
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .login-container.hidden {
+            transform: translateY(-20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .login-header p {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.2);
+            background-color: white;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            width: 100%;
+            max-width: none;
+        }
+
+        .dashboard.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-left: 0.75rem;
+        }
+
+        .badge-researcher {
+            background-color: rgba(76, 81, 191, 0.1);
+            color: var(--researcher);
+        }
+
+        .badge-admin {
+            background-color: rgba(107, 70, 193, 0.1);
+            color: var(--admin);
+        }
+
+        .query-container {
+            margin-top: 2rem;
+        }
+
+        .query-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .query-header h3 {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .access-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success);
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+            width: 100%;
+        }
+
+        /* Results */
+        .query-status {
+            margin: 1rem 0;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-success {
+            background-color: rgba(56, 161, 105, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .status-error {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: var(--error);
+            border-left: 4px solid var(--error);
+        }
+
+        .status-warning {
+            background-color: rgba(221, 107, 32, 0.1);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        th {
+            background-color: #f7fafc;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-light);
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .logout-btn {
+            background-color: transparent;
+            color: var(--text-light);
+            border: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+
+        .logout-btn:hover {
+            background-color: #f8fafc;
+            color: var(--text);
+            transform: none;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            border-top: 1px solid #edf2f7;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Icons */
+        .icon {
+            margin-right: 0.5rem;
+            display: inline-flex;
+        }
+
+        /* Page Transitions */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Intro Page -->
+        <div id="intro-page" class="page active">
+            <div class="intro-page">
+                <h1>Medical Research Portal</h1>
+                <p>Secure, HIPAA-compliant access to cutting-edge clinical research and patient data management</p>
+                <button onclick="showLogin()" class="login-btn">Researcher Login</button>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-page" class="page">
+            <div id="login-form" class="login-container">
+                <div class="login-header">
+                    <h1>Login to your Account</h1>
+                    <p>Please enter your credentials to continue</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Researcher ID</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter your researcher ID" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                
+                <button onclick="login()" class="btn btn-primary">
+                    <span class="icon"></span> Login
+                </button>
+                <p id="login-error" class="query-status status-error hidden"></p>
+            </div>
+        </div>
+
+        <!-- Dashboard Interface -->
+        <div id="dashboard-page" class="page">
+            <div id="query-interface" class="dashboard">
+                <div class="dashboard-header">
+                    <h2>Welcome back, <span id="username-display"></span></h2>
+                    <span id="user-badge" class="user-badge">
+                        <span id="badge-icon" class="icon"></span>
+                        <span id="badge-text"></span>
+                    </span>
+                </div>
+                
+                <div class="query-container">
+                    <div class="query-header">
+                        <h3>SQL Query Editor</h3>
+                        <span id="access-badge" class="access-badge hidden">
+                            <span class="icon">🔓</span>
+                            <span>Full data access</span>
+                        </span>
+                    </div>
+                    <textarea id="sql-query" class="form-control" rows="8" placeholder="Enter your SQL query here..." required></textarea>
+                    <button onclick="executeQuery()" class="btn btn-primary" style="margin-top: 1rem;">
+                        <span class="icon">⚡</span> Run Query
+                    </button>
+                    <div id="query-status" class="query-status hidden"></div>
+                    <div id="query-results"></div>
+                </div>
+
+                <button onclick="logout()" class="btn logout-btn">
+                    <span class="icon">🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="copyright">
+        &copy; 2025 Medical Research Portal. All Rights Reserved <br>
+        
+    </div>
+
+    <script>
+        let currentUser = null;
+        const VALID_USERS = {
+            "researcher1": { password: "pass123", role: "user", id: "researcher1" },
+            "admin": { password: "admin123", role: "admin", id: "admin" }
+        };
+    
+        const API_BASE_URL = 'http://localhost:8000';
+    
+        function showLogin() {
+            document.getElementById('intro-page').classList.remove('active');
+            document.getElementById('login-page').classList.add('active');
+        }
+    
+        function showDashboard() {
+            document.getElementById('login-page').classList.remove('active');
+            document.getElementById('dashboard-page').classList.add('active');
+        }
+    
+        function returnToLogin() {
+            document.getElementById('dashboard-page').classList.remove('active');
+            document.getElementById('login-page').classList.add('active');
+        }
+    
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const errorElement = document.getElementById("login-error");
+    
+            if (!username || !password) {
+                errorElement.innerText = "Please enter both username and password";
+                errorElement.classList.remove("hidden");
+                return;
+            }
+    
+            const user = VALID_USERS[username];
+            if (user && user.password === password) {
+                currentUser = {
+                    id: user.id,
+                    role: user.role
+                };
+    
+                // UI updates
+                document.getElementById("username-display").textContent = currentUser.id;
+    
+                const badge = document.getElementById("user-badge");
+                const badgeIcon = document.getElementById("badge-icon");
+                const badgeText = document.getElementById("badge-text");
+    
+                if (currentUser.role === "admin") {
+                    badge.className = "user-badge badge-admin";
+                    badgeIcon.textContent = "🛡️";
+                    badgeText.textContent = "Administrator";
+                    document.getElementById("access-badge").classList.remove("hidden");
+                } else {
+                    badge.className = "user-badge badge-researcher";
+                    badgeIcon.textContent = "🔬";
+                    badgeText.textContent = "Researcher";
+                }
+    
+                const queryField = document.getElementById("sql-query");
+                queryField.placeholder = currentUser.role === "admin"
+                    ? "SELECT * FROM patients"
+                    : `SELECT * FROM patients WHERE user_id = '${currentUser.id}'`;
+    
+                showDashboard();
+                document.getElementById("query-interface").classList.add("active");
+    
+                errorElement.classList.add("hidden");
+            } else {
+                errorElement.innerText = "Invalid credentials";
+                errorElement.classList.remove("hidden");
+            }
+        }
+    
+        function logout() {
+            document.getElementById("query-interface").classList.remove("active");
+            setTimeout(() => {
+                currentUser = null;
+                returnToLogin();
+                document.getElementById("login-error").classList.add("hidden");
+                document.getElementById("sql-query").value = "";
+                document.getElementById("query-results").innerHTML = "";
+                document.getElementById("query-status").className = "query-status hidden";
+                document.getElementById("access-badge").classList.add("hidden");
+            }, 300);
+        }
+    
+        async function executeQuery() {
+            const query = document.getElementById("sql-query").value.trim();
+            const resultsDiv = document.getElementById("query-results");
+            const statusDiv = document.getElementById("query-status");
+    
+            if (!query) {
+                statusDiv.className = "query-status status-error";
+                statusDiv.innerHTML = "Please enter a SQL query";
+                statusDiv.classList.remove("hidden");
+                return;
+            }
+    
+            statusDiv.className = "query-status";
+            statusDiv.innerHTML = "Executing query...";
+            statusDiv.classList.remove("hidden");
+            resultsDiv.innerHTML = "";
+    
+            try {
+                const response = await fetch(`${API_BASE_URL}/query?sql=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-User-ID': currentUser.id,
+                        'X-User-Role': currentUser.role
+                    }
+                });
+    
+                const data = await response.json();
+    
+                if (!response.ok) {
+                    throw new Error(data.error || "Query failed");
+                }
+    
+                let message = 'Query executed successfully';
+                if (data.modified) {
+                    message += ' <span class="status-warning">(modified for security)</span>';
+                }
+                if (data.note) {
+                    message += `<br><span class="status-warning">${data.note}</span>`;
+                }
+    
+                statusDiv.className = "query-status status-success";
+                statusDiv.innerHTML = message;
+    
+                if (data.data?.length > 0) {
+                    let table = "<table><thead><tr>";
+                    Object.keys(data.data[0]).forEach(key => {
+                        table += `<th>${key}</th>`;
+                    });
+                    table += "</tr></thead><tbody>";
+    
+                    data.data.forEach(row => {
+                        table += "<tr>";
+                        Object.values(row).forEach(val => {
+                            table += `<td>${val !== null ? val : 'NULL'}</td>`;
+                        });
+                        table += "</tr>";
+                    });
+    
+                    table += "</tbody></table>";
+                    resultsDiv.innerHTML = table;
+                } else {
+                    resultsDiv.innerHTML = "<p>No results found</p>";
+                }
+            } catch (error) {
+                statusDiv.className = "query-status status-error";
+                statusDiv.innerHTML = `Error: ${error.message}`;
+                console.error("Query execution error:", error);
+            }
+        }
+    </script>
+    
+</body>
+</html>
