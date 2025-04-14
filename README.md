@@ -1,1 +1,2 @@
 # Inference_control_using_Query_Modification
+This project is a simple and secure **Medical Research Portal** that allows users to log in as either a **researcher** or an **admin** and execute SQL queries on patient data. It demonstrates basic **inference control using query modification**, where user roles determine query access. The frontend is built entirely with **HTML**, **CSS**, and **vanilla JavaScript**, featuring a clean interface, responsive layout, and dynamic data rendering based on login credentials.
