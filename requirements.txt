@@ -1,0 +1,14 @@
+# Core framework for building the API
+fastapi
+
+# ASGI server to run the FastAPI app
+uvicorn
+
+# ORM for database operations
+sqlalchemy
+
+# Data validation and settings management
+pydantic
+
+# Templating engine for HTML responses
+jinja2
