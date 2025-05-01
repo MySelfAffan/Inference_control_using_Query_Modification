@@ -19,6 +19,10 @@
             --error: #e53e3e;
             --researcher: #4c51bf;
             --admin: #6b46c1;
+            --oncology: #9f7aea;
+            --ortho: #4299e1;
+            --cardio: #ed64a6;
+            --neuro: #68d391;
         }
         
         body {
@@ -231,6 +235,26 @@
             color: var(--admin);
         }
 
+        .badge-oncology {
+            background-color: rgba(159, 122, 234, 0.1);
+            color: var(--oncology);
+        }
+
+        .badge-ortho {
+            background-color: rgba(66, 153, 225, 0.1);
+            color: var(--ortho);
+        }
+
+        .badge-cardio {
+            background-color: rgba(237, 100, 166, 0.1);
+            color: var(--cardio);
+        }
+
+        .badge-neuro {
+            background-color: rgba(104, 211, 145, 0.1);
+            color: var(--neuro);
+        }
+
         .query-container {
             margin-top: 2rem;
         }
@@ -362,6 +386,40 @@
         .page.active {
             display: block;
         }
+
+        /* Department Selection */
+        .department-selection {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            max-width: 900px;
+            margin: 5rem auto;
+            text-align: center;
+        }
+
+        .department-selection h1 {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .department-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            background-color: #f8fafc;
+        }
+
+        .department-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -371,7 +429,24 @@
             <div class="intro-page">
                 <h1>Medical Research Portal</h1>
                 <p>Secure, HIPAA-compliant access to cutting-edge clinical research and patient data management</p>
-                <button onclick="showLogin()" class="login-btn">Researcher Login</button>
+                <button onclick="showDepartmentSelection()" class="login-btn">Researcher Login</button>
+            </div>
+        </div>
+
+        <!-- Department Selection -->
+        <div id="department-page" class="page">
+            <div class="department-selection">
+                <h1>Select Your Specialty</h1>
+                <select id="department-select" class="department-select">
+                    <option value="">-- Select Specialty --</option>
+                    <option value="admin"> Administrator </option>
+                    <option value="oncology">Oncology Department</option>
+                    <option value="ortho">Orthopedics Department</option>
+                    <option value="pulmonology">Pulmonology Department</option>
+                    <option value="cardio">Cardiology Department</option>
+                    <option value="endocrine">Endocrinology Department</option>
+                </select>
+                <button onclick="showLoginForm()" class="btn btn-primary">Continue</button>
             </div>
         </div>
 
@@ -379,7 +454,7 @@
         <div id="login-page" class="page">
             <div id="login-form" class="login-container">
                 <div class="login-header">
-                    <h1>Login to your Account</h1>
+                    <h1>Login to <span id="department-name"></span></h1>
                     <p>Please enter your credentials to continue</p>
                 </div>
                 
@@ -413,7 +488,7 @@
                 
                 <div class="query-container">
                     <div class="query-header">
-                        <h3>SQL Query Editor</h3>
+                        <h3>Patient Data Query</h3>
                         <span id="access-badge" class="access-badge hidden">
                             <span class="icon">🔓</span>
                             <span>Full data access</span>
@@ -436,20 +511,82 @@
 
     <div class="copyright">
         &copy; 2025 Medical Research Portal. All Rights Reserved <br>
-        
     </div>
 
     <script>
         let currentUser = null;
+        let currentDepartment = null;
+        
+        // Updated user credentials with medical condition specialization
         const VALID_USERS = {
-            "researcher1": { password: "pass123", role: "user", id: "researcher1" },
-            "admin": { password: "admin123", role: "admin", id: "admin" }
+            // Admin (Full Access)
+            "admin": { password: "admin123", role: "admin", department: "admin", name: "System Admin" },
+            
+            // Oncology (Cancer)
+            "dr_onco1": { password: "cancer123", role: "doctor", department: "oncology", name: "Dr. Smith (Oncology)" },
+            "dr_onco2": { password: "cancer456", role: "doctor", department: "oncology", name: "Dr. Johnson (Oncology)" },
+            
+            // Orthopedics (Arthritis)
+            "dr_ortho1": { password: "arthritis123", role: "doctor", department: "ortho", name: "Dr. Williams (Orthopedics)" },
+            "dr_ortho2": { password: "arthritis456", role: "doctor", department: "ortho", name: "Dr. Brown (Orthopedics)" },
+            
+            // Pulmonology (Asthma)
+            "dr_pulmo1": { password: "asthma123", role: "doctor", department: "pulmonology", name: "Dr. Davis (Pulmonology)" },
+            "dr_pulmo2": { password: "asthma456", role: "doctor", department: "pulmonology", name: "Dr. Miller (Pulmonology)" },
+            
+            // Cardiology (Hypertension)
+            "dr_cardio1": { password: "hypertension123", role: "doctor", department: "cardio", name: "Dr. Wilson (Cardiology)" },
+            "dr_cardio2": { password: "hypertension456", role: "doctor", department: "cardio", name: "Dr. Moore (Cardiology)" },
+            
+            // Endocrinology (Obesity)
+            "dr_endo1": { password: "obesity123", role: "doctor", department: "endocrine", name: "Dr. Taylor (Endocrinology)" },
+            "dr_endo2": { password: "obesity456", role: "doctor", department: "endocrine", name: "Dr. Anderson (Endocrinology)" }
         };
-    
+
+        const DEPARTMENT_NAMES = {
+            "admin": "Administrator Portal",
+            "oncology": "Oncology Department (Cancer Patients)",
+            "ortho": "Orthopedics Department (Arthritis Patients)",
+            "pulmonology": "Pulmonology Department (Asthma Patients)",
+            "cardio": "Cardiology Department (Hypertension Patients)",
+            "endocrine": "Endocrinology Department (Obesity Patients)"
+        };
+
+        const DEPARTMENT_COLORS = {
+            "admin": { badge: "badge-admin", icon: "🛡️" },
+            "oncology": { badge: "badge-oncology", icon: "🦠" },
+            "ortho": { badge: "badge-ortho", icon: "🦴" },
+            "pulmonology": { badge: "badge-cardio", icon: "🌬️" },
+            "cardio": { badge: "badge-cardio", icon: "❤️" },
+            "endocrine": { badge: "badge-neuro", icon: "⚖️" }
+        };
+
+        const medical_condition = {
+            "oncology": "Cancer",
+            "ortho": "Arthritis",
+            "pulmonology": "Asthma",
+            "cardio": "Hypertension",
+            "endocrine": "Obesity"
+        };
+
         const API_BASE_URL = 'http://localhost:8000';
     
-        function showLogin() {
+        function showDepartmentSelection() {
             document.getElementById('intro-page').classList.remove('active');
+            document.getElementById('department-page').classList.add('active');
+        }
+
+        function showLoginForm() {
+            const departmentSelect = document.getElementById('department-select');
+            currentDepartment = departmentSelect.value;
+            
+            if (!currentDepartment) {
+                alert('Please select a specialty');
+                return;
+            }
+            
+            document.getElementById('department-name').textContent = DEPARTMENT_NAMES[currentDepartment];
+            document.getElementById('department-page').classList.remove('active');
             document.getElementById('login-page').classList.add('active');
         }
     
@@ -475,41 +612,54 @@
             }
     
             const user = VALID_USERS[username];
-            if (user && user.password === password) {
+            
+            // Check if user exists, password matches, and department matches
+            if (user && user.password === password && 
+                (currentDepartment === "admin" || user.department === currentDepartment)) {
+                
                 currentUser = {
-                    id: user.id,
-                    role: user.role
+                    id: username,
+                    name: user.name,
+                    role: user.role,
+                    department: user.department,
+                    condition: medical_condition[user.department] || "All Conditions"
                 };
     
                 // UI updates
-                document.getElementById("username-display").textContent = currentUser.id;
+                document.getElementById("username-display").textContent = currentUser.name;
     
                 const badge = document.getElementById("user-badge");
                 const badgeIcon = document.getElementById("badge-icon");
                 const badgeText = document.getElementById("badge-text");
     
+                // Set department badge
+                const deptInfo = DEPARTMENT_COLORS[currentUser.department] || DEPARTMENT_COLORS["admin"];
+                badge.className = `user-badge ${deptInfo.badge}`;
+                badgeIcon.textContent = deptInfo.icon;
+                badgeText.textContent = currentUser.department === "admin" 
+                    ? "Administrator" 
+                    : DEPARTMENT_NAMES[currentUser.department];
+    
+                // Add admin badge if admin
                 if (currentUser.role === "admin") {
-                    badge.className = "user-badge badge-admin";
-                    badgeIcon.textContent = "🛡️";
-                    badgeText.textContent = "Administrator";
                     document.getElementById("access-badge").classList.remove("hidden");
                 } else {
-                    badge.className = "user-badge badge-researcher";
-                    badgeIcon.textContent = "🔬";
-                    badgeText.textContent = "Researcher";
+                    document.getElementById("access-badge").classList.add("hidden");
                 }
     
                 const queryField = document.getElementById("sql-query");
-                queryField.placeholder = currentUser.role === "admin"
-                    ? "SELECT * FROM patients"
-                    : `SELECT * FROM patients WHERE user_id = '${currentUser.id}'`;
+                if (currentUser.role === "admin") {
+                    queryField.placeholder = "SELECT * FROM patients";
+                } else {
+                    queryField.placeholder = `SELECT * FROM patients WHERE \"medical_condition\" = '${currentUser.condition}'`;
+                }
     
                 showDashboard();
                 document.getElementById("query-interface").classList.add("active");
     
                 errorElement.classList.add("hidden");
             } else {
-                errorElement.innerText = "Invalid credentials";
+                errorElement.innerText = "Invalid credentials or specialty mismatch";
                 errorElement.classList.remove("hidden");
             }
         }
@@ -518,6 +668,7 @@
             document.getElementById("query-interface").classList.remove("active");
             setTimeout(() => {
                 currentUser = null;
+                currentDepartment = null;
                 returnToLogin();
                 document.getElementById("login-error").classList.add("hidden");
                 document.getElementById("sql-query").value = "";
@@ -539,17 +690,30 @@
                 return;
             }
     
+            // For non-admin users, automatically filter by medical condition
+            let finalQuery = query;
+            if (currentUser.role !== "admin" && currentUser.condition) {
+                // Simple check to prevent SQL injection (in a real app, use parameterized queries)
+                if (!query.toLowerCase().includes("where")) {
+                    finalQuery += ` WHERE \"medical_condition\" = '${currentUser.condition}'`;
+                } else {
+                    finalQuery += ` AND \"medical_condition\" = '${currentUser.condition}'`;
+                }
+            }
+    
             statusDiv.className = "query-status";
             statusDiv.innerHTML = "Executing query...";
             statusDiv.classList.remove("hidden");
             resultsDiv.innerHTML = "";
     
             try {
-                const response = await fetch(`${API_BASE_URL}/query?sql=${encodeURIComponent(query)}`, {
+                const response = await fetch(`${API_BASE_URL}/query?sql=${encodeURIComponent(finalQuery)}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-User-ID': currentUser.id,
-                        'X-User-Role': currentUser.role
+                        'X-User-Role': currentUser.role,
+                        'X-User-Dept': currentUser.department,
+                        'X-Medical-Condition': currentUser.condition || 'all'
                     }
                 });
     
@@ -560,8 +724,8 @@
                 }
     
                 let message = 'Query executed successfully';
-                if (data.modified) {
-                    message += ' <span class="status-warning">(modified for security)</span>';
+                if (data.authorized) {
+                    message += ' <span class="status-warning">(authorized for security)</span>';
                 }
                 if (data.note) {
                     message += `<br><span class="status-warning">${data.note}</span>`;
@@ -597,6 +761,5 @@
             }
         }
     </script>
-    
 </body>
 </html>
